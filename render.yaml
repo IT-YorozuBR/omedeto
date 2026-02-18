@@ -1,0 +1,43 @@
+services:
+  # ── Back-end: API Node.js ────────────────────────────────────
+  - type: web
+    name: omedeto
+    runtime: node
+    rootDir: back-end
+    buildCommand: npm install
+    startCommand: node server.js
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 3001
+      - key: DATABASE_URL
+        sync: false          # preencher manualmente no painel do Render
+      - key: JWT_SECRET
+        sync: false          # preencher manualmente no painel do Render
+      - key: ADMIN_EMAIL
+        sync: false          # preencher manualmente no painel do Render
+      - key: ADMIN_PASSWORD
+        sync: false          # preencher manualmente no painel do Render
+      - key: API_URL
+        value: https://omedeto.onrender.com
+      - key: CORS_ORIGIN
+        value: https://omedeto-front-end.onrender.com
+
+  # ── Front-end: site estático ─────────────────────────────────
+  - type: web
+    name: omedeto-front-end
+    runtime: static
+    rootDir: front-end
+    staticPublishPath: .
+    buildCommand: ""          # sem build step — HTML/CSS/JS puro
+    plan: free
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: no-cache
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
