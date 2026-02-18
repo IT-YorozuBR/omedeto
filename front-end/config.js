@@ -5,4 +5,4 @@
  *   - Desenvolvimento: 'http://localhost:3001/api'
  *   - Produção:        'https://omedeto.onrender.com/api'
  */
-const API_BASE_URL = 'https://omedeto-api.onrender.com';
+const API_BASE_URL = 'https://omedeto-api.onrender.com/api';
