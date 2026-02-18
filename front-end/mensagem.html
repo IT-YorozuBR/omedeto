@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YOROZU - Enviar Reconhecimento</title>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles/index.css">
+    <script src="config.js"></script>
+</head>
+
+<body>
+    <div class="container">
+
+        <header class="yorozu-header">
+            <div class="company-logo">
+                <!-- <div class="japanese-name">ブラジルのヨロズ自動車</div> -->
+                <div class="english-name">YOROZU AUTOMOTIVA DO BRASIL</div>
+                <div class="app-title" id="appTitle"></div>
+            </div>
+        </header>
+
+        <div style="display:flex; justify-content:flex-end; margin:10px 0;">
+            <button id="langToggle" class="btn btn-secondary"></button>
+        </div>
+
+        <div class="nav-container">
+            <a href="index.html" class="nav-btn active">
+                <i class="fas fa-envelope"></i>
+                <span id="navSend"></span>
+            </a>
+            <a href="rh.html" class="nav-btn">
+                <i class="fas fa-eye"></i>
+                <span id="navView"></span>
+            </a>
+        </div>
+
+        <div class="form-container">
+            <h1 class="page-title">
+                <i class="fas fa-pen-alt"></i>
+                <span id="titleSend"></span>
+            </h1>
+
+            <p id="descSend" class="pagx x"></p>
+
+            <form id="messageForm">
+
+                <div class="form-group">
+                    <label id="labelSender" for="remetente_nome" class="required"></label>
+                    <input id="remetente_nome" type="text" maxlength="50" required>
+                    <small id="senderLimit"></small>
+                </div>
+
+                <div class="form-group">
+                    <label id="labelReceiver" for="destinatario_nome" class="required"></label>
+                    <input id="destinatario_nome" type="text" maxlength="50" required>
+                    <small id="receiverLimit"></small>
+                </div>
+
+                <div class="form-group">
+                    <label id="labelMessage" for="mensagem" class="required"></label>
+                    <textarea id="mensagem" maxlength="250" required></textarea>
+
+                    <div style="display:flex; justify-content:space-between; font-size:0.85rem; color:#6c757d;">
+                        <span id="tipText"></span>
+                        <span id="charLabel"></span>
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="reset" class="btn btn-secondary">
+                        <i class="fas fa-redo"></i>
+                        <span id="btnReset"></span>
+                    </button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-paper-plane"></i>
+                        <span id="btnSend"></span>
+                    </button>
+                </div>
+
+            </form>
+        </div>
+
+        <div id="confirmationModal" class="modal">
+            <div class="modal-content">
+                <button class="modal-close" id="closeModal">&times;</button>
+                <div class="modal-icon"><i class="fas fa-check-circle"></i></div>
+                <h2 id="modalTitle" class="modal-title"></h2>
+                <p id="modalText"></p>
+                <div style="display:flex; justify-content:center; margin-top:20px;">
+                    <button id="newMessageBtn" class="btn btn-primary">
+                        <i class="fas fa-plus"></i>
+                        <span id="btnNewMessage"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <p id="footerText"></p>
+            <p id="footerJapanese" class="yorozu-footer"></p>
+        </footer>
+
+    </div>
+
+    <script>
+        // API_URL vem de config.js
+        const API_URL = API_BASE_URL;
+
+        let currentLang = "pt";
+
+        const texts = {
+            pt: {
+                appTitle: "Sistema de Reconhecimento entre Colaboradores",
+                navSend: "Enviar Reconhecimento",
+                navView: "Visualizar Mensagens (RH)",
+                titleSend: "Enviar Mensagem de Reconhecimento",
+                descSend: "Reconheça o trabalho exemplar de seus colegas. Sua mensagem será registrada no sistema e poderá ser visualizada pelo departamento de RH.",
+                labelSender: "Seu Nome (Quem está enviando)",
+                labelReceiver: "Nome do Destinatário (Quem receberá)",
+                labelMessage: "Mensagem de Reconhecimento",
+                senderPlaceholder: "Digite seu nome completo",
+                receiverPlaceholder: "Nome do colega que você deseja reconhecer",
+                messagePlaceholder: "Escreva sua mensagem de reconhecimento...",
+                senderLimit: "Máx. 50 caracteres",
+                receiverLimit: "Máx. 50 caracteres",
+                charLabel: "0 / 250",
+                tipText: "Dica: Seja específico sobre as contribuições do colega.",
+                btnSend: "Enviar Reconhecimento",
+                btnReset: "Limpar Formulário",
+                btnNewMessage: "Nova Mensagem",
+                modalTitle: "Reconhecimento Enviado!",
+                modalText: "Sua mensagem foi registrada com sucesso.",
+                footerText: "YOROZU AUTOMOTIVA DO BRASIL - Sistema de Reconhecimento entre Colaboradores",
+                footerJapanese: "株式会社 三〇六 - 従業員評価システム",
+                toggle: "日本語"
+            },
+            jp: {
+                appTitle: "従業員感謝・評価システム",
+                navSend: "感謝メッセージ送信",
+                navView: "人事部閲覧",
+                titleSend: "感謝メッセージの送信",
+                descSend: "同僚の優れた業績や貢献を称えましょう。メッセージはシステムに登録され、人事部が確認できます。",
+                labelSender: "送信者名",
+                labelReceiver: "受信者名",
+                labelMessage: "感謝・評価メッセージ",
+                senderPlaceholder: "氏名を入力してください",
+                receiverPlaceholder: "表彰したい同僚の名前",
+                messagePlaceholder: "感謝や評価のメッセージを入力してください",
+                senderLimit: "最大50文字",
+                receiverLimit: "最大50文字",
+                charLabel: "0 / 250",
+                tipText: "ヒント：同僚の具体的な貢献内容を書きましょう。",
+                btnSend: "送信",
+                btnReset: "入力内容をクリア",
+                btnNewMessage: "新しいメッセージ",
+                modalTitle: "送信完了",
+                modalText: "感謝メッセージは正常に登録されました。",
+                footerText: "YOROZU AUTOMOTIVA DO BRASIL - 従業員感謝システム",
+                footerJapanese: "株式会社 三〇六 - 従業員評価システム",
+                toggle: "Português"
+            }
+        };
+
+
+        function disableSubmit(disabled = true) {
+    const submitBtn = document.querySelector('#messageForm button[type="submit"]');
+
+    if (!submitBtn) return;
+
+    submitBtn.disabled = disabled;
+
+    if (disabled) {
+        submitBtn.dataset.originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Enviando...`;
+    } else {
+        submitBtn.innerHTML = submitBtn.dataset.originalText;
+    }
+}
+
+
+
+        function applyLanguage() {
+            const t = texts[currentLang];
+            Object.keys(t).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) el.innerText = t[id];
+            });
+            remetente_nome.placeholder = t.senderPlaceholder;
+            destinatario_nome.placeholder = t.receiverPlaceholder;
+            mensagem.placeholder = t.messagePlaceholder;
+            document.getElementById("langToggle").innerText = t.toggle;
+
+        }
+
+        langToggle.onclick = () => {
+            currentLang = currentLang === "pt" ? "jp" : "pt";
+            applyLanguage();
+        };
+
+        mensagem.oninput = () => {
+            charLabel.innerText = `${mensagem.value.length} / 250`;
+        };
+
+        messageForm.onsubmit = async e => {
+            e.preventDefault();
+             disableSubmit(true);
+            const res = await fetch(`${API_URL}/messages/public`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    remetente_nome: remetente_nome.value.trim(),
+                    destinatario_nome: destinatario_nome.value.trim(),
+                    mensagem: mensagem.value.trim()
+                })
+            });
+            const data = await res.json();
+            if (data.success) confirmationModal.style.display = "flex";
+             disableSubmit(false);
+        };
+
+        closeModal.onclick = newMessageBtn.onclick = () => {
+            confirmationModal.style.display = "none";
+            messageForm.reset();
+            charLabel.innerText = "0 / 250";
+        };
+
+        applyLanguage();
+    </script>
+</body>
+
+</html>
